@@ -33,6 +33,7 @@ captures/
 
 .idea/
 gradle/
+app/app.iml
 explora.iml
 gradle.properties
 gradlew
