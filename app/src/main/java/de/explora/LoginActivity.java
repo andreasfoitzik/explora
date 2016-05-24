@@ -6,12 +6,14 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 
@@ -35,6 +37,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.explora.database.DatabaseManager;
+
 /**
  * A login screen that offers login via email/password.
  */
@@ -46,9 +50,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
      */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "root@root.com:root", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -333,10 +334,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         private final String mEmail;
         private final String mPassword;
+        private final DatabaseManager dbManager;
 
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
+            dbManager = new DatabaseManager(getApplicationContext());
         }
 
         @Override
@@ -349,13 +352,19 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             } catch (InterruptedException e) {
                 return false;
             }
+            SQLiteDatabase db = dbManager.getReadableDatabase();
+            ContentValues values = new ContentValues();
+            String[] projection = {
+                    DatabaseManager.UserEntry.COLUMN_NAME_PASSWORD
+            };
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
+            Cursor cursor = db.query(DatabaseManager.UserEntry.TABLE_NAME,projection,DatabaseManager.UserEntry.COLUMN_NAME_MAIL + " = '"+mEmail+"'",null,null,null,null);
+            cursor.moveToFirst();
+
+            String password = cursor.getString(cursor.getColumnIndex(DatabaseManager.UserEntry.COLUMN_NAME_PASSWORD));
+
+            if(password.equals(mPassword)){
+                return true;
             }
 
             // TODO: register the new account here.

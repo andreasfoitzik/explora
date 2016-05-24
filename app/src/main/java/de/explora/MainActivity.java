@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
@@ -19,6 +20,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+
+import de.explora.database.DatabaseManager;
 import de.explora.slidingmenu.adapter.NavDrawerListAdapter;
 import de.explora.slidingmenu.model.NavDrawerItem;
 
@@ -109,7 +112,6 @@ public class MainActivity extends FragmentActivity {
         }
 
         mDrawerList.setOnItemClickListener(new SlideMenuClickListener());
-
 
     }
 
